@@ -77,7 +77,6 @@ void setDeviceOn()
 {
   deviceIsOn = true;
   countdownStartTime = millis();
-  countdownCurrentTime = countdownStartTime;
   pinMode(7, OUTPUT);
   digitalWrite(7, HIGH);
   Serial.println("Device was set on.");
@@ -238,6 +237,7 @@ void loop()
     Serial.println(countdownCurrentTime);
     Serial.print("countdown");
     Serial.println(countdown);
+ 
 
     if (deviceIsOn == true) // Überprüft, ob das Gerät eingeschaltet ist
     {
@@ -246,12 +246,15 @@ void loop()
         heatOn((int)y);
         fanOn(fanSpeedInBytes);
       }
-      else if (countdown != 0 && countdownStartTime - countdownCurrentTime >= countdown)
+      else if (countdown != 0 && aktuelle_Zeit >= (countdownStartTime + countdown))
       {
         setDeviceOff();
+        
+        Serial.println("we are stopping heating and blowing");
       }
-      else if (countdown != 0 && countdownStartTime - countdownCurrentTime < countdown)
+      else if (countdown != 0 && aktuelle_Zeit < (countdownStartTime + countdown))
       {
+        Serial.println("we are heating and blowing");
         heatOn((int)y);
         fanOn(fanSpeedInBytes);
       }
