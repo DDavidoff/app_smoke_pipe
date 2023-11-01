@@ -37,14 +37,14 @@ float yP, yI, yD;
   float Kd;                         // Ableitungsteil
   float Tn = 723.805;               // Nachstellzeit
   float Tv = 41.498;                // Verstärkungszeit
-  float Ts ;                       // Abtastzeit 
+  float Ts ;                        // Abtastzeit 
 
 void setup() {
   
   Serial.begin(9600);               // Serielle Kommunikation mit einer Baudrahte 9600
   max.begin(MAX31865_3WIRE);        // Kommunikation mit 3-Draht PT100 Sensor über MAX31865
   pinMode(ssr, OUTPUT);             // Konfiguriere Pin 9 als Ausgang
-  vor_Micros = micros();        // Initialize previousMicroseviousMicro
+  vor_Micros = micros();            // Initialize previousMicroseviousMicro
 }
 
 void loop() { 
@@ -88,7 +88,7 @@ void loop() {
   integral = constrain(integral, integral_min, integral_max);     // Begrenzt den Integralanteil zwischen den festgelegten Grenzen
   
   e = w - x ;                                                      // Berechnung von Regeldifferenzgröße
-  ableitung = (e - e_alt)/Ts;                                    // Berechnung der Ableitung des Fehlers
+  ableitung = (e - e_alt) / Ts;                                    // Berechnung der Ableitung des Fehlers
   integral += e * Ts;                                                 // Aktuelle Fehler wird akkumuliert im Integralanteil
 
    yP = Kp * e;                                                   // Berechnung des Proportionalanteils
