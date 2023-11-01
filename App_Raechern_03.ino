@@ -92,10 +92,10 @@ void loop()
   // Konvertirung der Zeit in sekunden 
   float Ts = zeitDifferenz / 1e6;           
 
-  aktuelle_Zeit = millis();                   // Speichert die aktuelle Zeit nach dem Start des Arduino
+  aktuelle_Zeit = millis();                // Speichert die aktuelle Zeit nach dem Start des Arduino
 
-  temperatur = max.temperature(100, 431);     // Temperatureinlesung mit MAX31865 (Pt100), 431 Referenzwiderstand
-  x = temperatur;                             // Speichert die Temperatur in der Variable x
+  temperatur = max.temperature(100, 431);  // Temperatureinlesung mit MAX31865 (Pt100), 431 Referenzwiderstand
+  x = temperatur;                          // Speichert die Temperatur in der Variable x
 
   // Periodische Ausgabe der Temperatur
   if (aktuelle_Zeit - vor_Millis >= interval)      // Überprüft, ob 10 Sekunden vergangen sind
