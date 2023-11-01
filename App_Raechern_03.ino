@@ -14,10 +14,8 @@ float temperatur; // Temperatur Variable in Datentyp float
 
 // Zeitvariablen
 unsigned long vor_Millis = 0;   // Zwischenspeicher Variable für Millis-Funktion
-unsigned long vor_Millis02 = 0; // Zwischenspeicher Variable für Millis-Funktion
-const long interval = 10000;     // Intervall Variable für Millis-Funktion 5s
+const long interval = 10000;    // Intervall Variable für Millis-Funktion 5s
 unsigned long aktuelle_Zeit;    // Speicher-Variable für die aktuelle Zeit
-const long interval02 = 1000;   //  Intervall Variable für Millis-Funktion 1s
 
 // Lüfter 12V
 const int enA = 5;              // PWM Pin für die Geschwindigkeitssteuerung des Lüfters
@@ -77,28 +75,27 @@ bool deviceIsOn = false;
 // Funktion, um das Gerät einzuschalten
 void setDeviceOn()
 {
-  deviceIsOn = true;                      // Setzt den Zustand des Geräts auf "true"
+  deviceIsOn = true;            // Setzt den Zustand des Geräts auf "true"
 }
 
 // Funktion, um das Gerät auszuschalten
 void setDeviceOff()
 {
-  deviceIsOn = false;                     // Setzt den Zustand des Geräts auf "aus"
+  deviceIsOn = false;            // Setzt den Zustand des Geräts auf "aus"
 }
 
 void loop()
 {
-  // Berechnen die Zeitdifferenz
-  unsigned long aktuellMicros = micros();          // Speichert die aktuelle Zeit in Mikrosekunden seit dem Start des Arduino
-  unsigned long zeitDifferenz = aktuellMicros - vor_Micros; // Berechnet die Zeitdifferenz zwischen der aktuellen und der vorherigen Zeit
+  // Berechnen der Abtastrate
+  unsigned long aktuellMicros = micros();      
+  unsigned long zeitDifferenz = aktuellMicros - vor_Micros; 
   // Konvertirung der Zeit in sekunden 
-  float Ts = zeitDifferenz / 1e6;           // Konvertiert die Zeitdifferenz von Mikrosekunden in Sekunden 
+  float Ts = zeitDifferenz / 1e6;           
 
+  aktuelle_Zeit = millis();                   // Speichert die aktuelle Zeit nach dem Start des Arduino
 
-  aktuelle_Zeit = millis();                     // Speichert die aktuelle Zeit nach dem Start des Arduino
-
-  temperatur = max.temperature(100, 431);       // Temperatureinlesung mit MAX31865 (Pt100), 431 Referenzwiderstand
-  x = temperatur;                               // Speichert die Temperatur in der Variable x
+  temperatur = max.temperature(100, 431);     // Temperatureinlesung mit MAX31865 (Pt100), 431 Referenzwiderstand
+  x = temperatur;                             // Speichert die Temperatur in der Variable x
 
   // Periodische Ausgabe der Temperatur
   if (aktuelle_Zeit - vor_Millis >= interval)      // Überprüft, ob 10 Sekunden vergangen sind
@@ -133,16 +130,16 @@ void loop()
 
       if (incomingData.startsWith("T:"))                    // Überprüft, ob der empfangene String mit "T:" beginnt
       {
-        String tempString = incomingData.substring(2, incomingData.length() - 1);     // Entfernt "T:" und "\n" aus dem String
-        w = tempString.toFloat();                                                     // Konvertierung von String zu einem Float
+        String tempString = incomingData.substring(2, incomingData.length() - 1); // Entfernt "T:" und "\n" aus dem String
+        w = tempString.toFloat();                                                 // Konvertierung von String zu einem Float
       }
 
       // Lüfter Steuerung
       if (incomingData.startsWith("L:"))                    // Überprüft, ob der empfangene String mit "L:" beginnt
       {
-        String incomingFanSpeed = incomingData.substring(2, incomingData.length());   // Entfernt "L:" und "\n" aus dem String
-        fanSpeedInPercent = incomingFanSpeed.toInt();                                 // Konvertiert von String zu einem Integer  
-        fanSpeed = map(fanSpeedInPercent, 0, 100, 0, 255);                            // Ändert den Bereich von 0-100 zu 0-255                                                  
+        String incomingFanSpeed = incomingData.substring(2, incomingData.length()); // Entfernt "L:" und "\n" aus dem String
+        fanSpeedInPercent = incomingFanSpeed.toInt();                               // Konvertiert von String zu einem Integer  
+        fanSpeed = map(fanSpeedInPercent, 0, 100, 0, 255);                          // Ändert den Bereich von 0-100 zu 0-255                                                  
       }
 
       // Prüfkommunikation zum Anschalten
@@ -169,37 +166,33 @@ void loop()
     Kd = Kp * Tv;                           // Berechnung von Ableitungsanteil Kd
     integral_min = 0;                       // Setzt die minimale Grenze für den Integralanteil
     integral_max = 4000;                    // Setzt die maximale Grenze für den Integralanteil
- 
-    integral = constrain(integral, integral_min, integral_max);     // Begrenzt den Integralanteil zwischen den festgelegten Grenzen
 
-    //if ( aktuelle_Zeit - vor_Millis02 >= interval02)
-   // {
-      e = w - x;                              // Berechnung von Regeldifferenzgröße
-      integral += e *Ts ;                     // Aktuelle Fehler wird akkumuliert im Integralanteil
-      ableitung = (e - e_alt)/ Ts;           // Berechnung der Ableitung des Fehlers
-      yP = Kp * e;                            // Berechnung des Proportionalanteils
-      yI = Ki * integral;                     // Berechnung des Integralanteils
-      yD = Kd * ableitung;                    // Berechnung des Differenzialanteils
+  // Begrenzt den Integralanteil zwischen den festgelegten Grenzen
+    integral = constrain(integral, integral_min, integral_max);    
+
+      e = w - x;                             // Berechnung von Regeldifferenzgröße
+      integral += e * Ts ;                   // Aktuelle Fehler wird akkumuliert im Integralanteil
+      ableitung = (e - e_alt) / Ts;          // Berechnung der Ableitung des Fehlers
+      yP = Kp * e;                           // Berechnung des Proportionalanteils
+      yI = Ki * integral;                    // Berechnung des Integralanteils
+      yD = Kd * ableitung;                   // Berechnung des Differenzialanteils
 
       // Berechnung der Stellgröße (Ausgangssignal)
-      y = yP + yI + yD;                       // Gesamtausgangssignal des PID-Reglers
-      y = constrain(y, 0, 255);               // Begrenzt die Stellgröße zwischen 0 und 255
+      y = yP + yI + yD;                      // Gesamtausgangssignal des PID-Reglers
+      y = constrain(y, 0, 255);              // Begrenzt die Stellgröße zwischen 0 und 255
 
-      vor_Millis02 = aktuelle_Zeit;
-    //}
-    
-    digitalWrite(in1, HIGH);                // Setzt in1 auf HIGH
-    digitalWrite(in2, LOW);                 // Setzt in2 auf LOW
+    digitalWrite(in1, HIGH);                 // Setzt in1 auf HIGH
+    digitalWrite(in2, LOW);                  // Setzt in2 auf LOW
     
     if (deviceIsOn == true) // Überprüft, ob das Gerät eingeschaltet ist
     {
-      analogWrite(ssr, int(y));             // Schreibt die Stellgröße auf das Halbleiterrelais (SSR)
-      analogWrite(enA, fanSpeed);           // Schaltet den Lüfter mit der festgelegten Geschwindigkeit ein
+      analogWrite(ssr, int(y));              // Schreibt die Stellgröße auf das Halbleiterrelais (SSR)
+      analogWrite(enA, fanSpeed);            // Schaltet den Lüfter mit der festgelegten Geschwindigkeit ein
     }
     else // Falls das Gerät ausgeschaltet ist
     {
-      analogWrite(ssr, 0);                  // Schaltet das Heizelement aus
-      analogWrite(enA, 0);                  // Schaltet den Lüfter aus
+      analogWrite(ssr, 0);                   // Schaltet das Heizelement aus
+      analogWrite(enA, 0);                   // Schaltet den Lüfter aus
     }
   e_alt = e;
   vor_Micros = aktuellMicros;
